@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 
 public enum Algoritmo
 {
-    PerlinNoise
+    PerlinNoise, PerlinNoiseSuavizado
 }
 
 public class Generador : MonoBehaviour
@@ -25,6 +25,9 @@ public class Generador : MonoBehaviour
     [Header("Algoritmo")]
     public Algoritmo algoritmo = Algoritmo.PerlinNoise;
 
+    [Header("Perlin Noise Suavizado")]
+    public int Intervalo = 2;
+
     public void GenerarMapa()
     {
         //limpiamos el mapa de losetas
@@ -42,6 +45,10 @@ public class Generador : MonoBehaviour
             case Algoritmo.PerlinNoise:
                 mapa = Metodos.GenerarArray(Ancho, Alto, true);
                 mapa = Metodos.PerlinNoise(mapa, Semilla);
+                break;
+            case Algoritmo.PerlinNoiseSuavizado:
+                mapa = Metodos.GenerarArray(Ancho, Alto, true);
+                mapa = Metodos.PerlinNoiseSuavizado(mapa, Semilla, Intervalo);
                 break;
         }
 

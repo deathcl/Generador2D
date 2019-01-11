@@ -76,4 +76,70 @@ public class Metodos
 
         return mapa;
     }
+
+    /// <summary>
+    /// Modifica el mapa creando un terreno Perlin Noise suavizado
+    /// </summary>
+    /// <param name="mapa">El mapa que vamos a editar</param>
+    /// <param name="semilla">La semilla para la generacion del Perlin Noise</param>
+    /// <param name="intervalo">El intervalo en el que grabaremos la altura</param>
+    /// /// <returns>Devuelve el mapa modificado</returns>
+    public static int[,] PerlinNoiseSuavizado(int[,] mapa, float semilla, int intervalo)
+    {
+        if(intervalo > 1)
+        {
+            //utilizados en el proceso de suavizado
+            Vector2Int posicionActual, posicionAnterior;
+            //Los puntos correspondientes para el suevizado, uno en cada eje.
+            List<int> ruidoX = new List<int>();
+            List<int> ruidoY = new List<int>();
+
+            int nuevoPunto, puntos;
+
+            //Genera el ruido (guarda la altura de ciertos picos (segun el intervalo) del mapa generado)
+            for (int x = 0; x <= mapa.GetUpperBound(0) + intervalo; x += intervalo)
+            {
+                nuevoPunto = Mathf.FloorToInt(Mathf.PerlinNoise(x, semilla) * mapa.GetUpperBound(1));
+                ruidoY.Add(nuevoPunto);
+                ruidoX.Add(x);
+            }
+            puntos = ruidoY.Count;
+
+            //Empezamos en la primera posicion para asi tener disponible una posicion anterior
+            for(int i = 1; i < puntos; i++)
+            {
+                //OBtenemos la posicion antual
+                posicionActual = new Vector2Int(ruidoX[i], ruidoY[i]);
+                //Obtenemos la posicion anterior
+                posicionAnterior = new Vector2Int(ruidoX[i - 1], ruidoY[i - 1]);
+
+                //Diferencia entre las dos posiciones. Cuanto se ha movido entre altura
+                Vector2 diferencia = posicionActual - posicionAnterior;
+
+                //Calculamos el cambio de altura
+                float cambioEnAltura = diferencia.y / intervalo;
+                //guardamos la altura actual
+                float alturaActual = posicionAnterior.y;
+
+                //avanza de la posicion anterior hazta la posicion actual
+                for(int x = posicionAnterior.x; x < posicionActual.x && x < mapa.GetUpperBound(0); x++)
+                {
+                    //vamos dibujando losetas desde la altura actual
+                    for(int y = Mathf.FloorToInt(alturaActual); y >=
+                        0; y--)
+                    {
+                        mapa[x, y] = 1;
+                    }
+                    //calculamos altura actual
+                    alturaActual += cambioEnAltura;
+                }
+            }
+        }
+        else
+        {
+            mapa =  PerlinNoise(mapa, semilla);
+        }
+
+        return mapa;
+    }
 }
